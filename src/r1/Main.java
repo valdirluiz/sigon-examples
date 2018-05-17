@@ -2,7 +2,10 @@ package r1;
 
 import java.io.File;
 import java.io.IOException;
-
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -22,132 +25,160 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import javafx.scene.shape.*;
 
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class Main extends Application {
 
-    static GridPane root;
+	static GridPane root;
 
-    static int SIZE = 11;
-    static int length = SIZE;
-    static int width = SIZE;
+	// Aumentei o tamanho
+	static int SIZE = 12;
+	static int length = SIZE;
+	static int width = SIZE;
 
-    public static  int rowIndex = 0;
-    public static  int columnIndex = 0;
+	public static int rowIndex = 0;
+	public static int columnIndex = 0;
+	private static ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
-    private static boolean pedestrianSignalClose = false;
+	private Image pedestrian = new Image(getClass().getResourceAsStream("agent.png"));
 
-    @Override
-    public void start(Stage primaryStage) {
-        root = new GridPane();
-        root.setPadding(new Insets(10, 10, 10, 10));
-        root.setHgap(2);
-        root.setVgap(2);
-        root.getStyleClass().addAll("game-root");
+	@Override
+	public void start(Stage primaryStage) {
+		root = new GridPane();
+		root.setPadding(new Insets(10, 10, 10, 10));
+		root.setHgap(2);
+		root.setVgap(2);
+		root.getStyleClass().addAll("game-root");
 
-        addChildrens(rowIndex, columnIndex, root);
+		addChildrens(rowIndex, columnIndex, root);
+		;
 
-        Scene scene = new Scene(root, 550, 550);
-        scene.getStylesheets().add("r1/game.css");
+		Scene scene = new Scene(root, 550, 550);
+		scene.getStylesheets().add("r1/game.css");
 
-        primaryStage.setTitle("R1");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+		// Adicionei essas duas linhas
+		root.getChildren().get(getButton(6, 6)).getStyleClass().add("game-button-agent");
 
+		primaryStage.setTitle("R1");
+		primaryStage.setScene(scene);
+		primaryStage.show();
 
+		//Runnable runnableTask = leftCars();
+		//executorService.schedule(runnableTask, 450, TimeUnit.MILLISECONDS);
+	}
 
-    }
+	private Runnable leftCars() {
+		return () -> {
+			try {
+				for (int i = 11; i > -1; i--) {
 
-    private static void startAgent(){
-        try {
+					if (i < 11) {
+						TimeUnit.MILLISECONDS.sleep(300);
+						root.getChildren().get(getButton(i + 1, 5)).getStyleClass().clear();
+						root.getChildren().get(getButton(i + 1, 5)).getStyleClass().addAll("game-button-road");
+						root.getChildren().get(getButton(i, 5)).getStyleClass().add("game-button-car");
 
-            File agentFile = new File("r1.on");
-            CharStream stream = CharStreams.fromFileName(agentFile.getAbsolutePath());
-            AgentLexer lexer = new AgentLexer(stream);
-            CommonTokenStream tokens = new CommonTokenStream(lexer);
+					} else {
+						root.getChildren().get(getButton(i, 5)).getStyleClass().add("game-button-car");
+					}
+				}
 
-            AgentParser parser = new AgentParser(tokens);
-            parser.removeErrorListeners();
-            parser.addErrorListener(new VerboseListener());
+			executorService.schedule(this::leftCars, (long) (Math.random() * 1000), TimeUnit.MILLISECONDS);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		};
+	}
 
-            ParseTree tree = parser.agent();
-            ParseTreeWalker walker = new ParseTreeWalker();
+	private static void startAgent() {
+		try {
 
-            AgentWalker agentWalker = new AgentWalker();
-            walker.walk(agentWalker, tree);
+			File agentFile = new File("r1.on");
+			CharStream stream = CharStreams.fromFileName(agentFile.getAbsolutePath());
+			AgentLexer lexer = new AgentLexer(stream);
+			CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-            Agent agent = new Agent();
-            agent.run(agentWalker);
+			AgentParser parser = new AgentParser(tokens);
+			parser.removeErrorListeners();
+			parser.addErrorListener(new VerboseListener());
 
+			ParseTree tree = parser.agent();
+			ParseTreeWalker walker = new ParseTreeWalker();
 
+			AgentWalker agentWalker = new AgentWalker();
+			walker.walk(agentWalker, tree);
 
+			Agent agent = new Agent();
+			agent.run(agentWalker);
 
-        } catch (IOException e) {
-            System.out.println("I/O exception.");
-        }
-    }
+		} catch (IOException e) {
+			System.out.println("I/O exception.");
+		}
+	}
 
+	// Método inteiro mudado
+	private static void addChildrens(int rowIndex, int columnIndex, GridPane root) {
 
+		for (int y = 0; y < length; y++) {
 
+			for (int x = 0; x < width; x++) {
 
-    private static void addChildrens(int rowIndex, int columnIndex, GridPane root) {
+				Button button = new Button();
 
+				button.setPrefHeight(50);
+				button.setPrefWidth(50);
+				button.setAlignment(Pos.CENTER);
 
+				// Set all as default
+				button.setText("");
+				button.getStyleClass().addAll("game-button");
 
-        for(int y = 0; y < length; y++){
-            for(int x = 0; x < width; x++) {
+				// Horizontal pedestrians
+				if (x < 4 || x > 7) {
+					if (y == 1 || y == 4 || y == 7 || y == 10)
+						button.getStyleClass().add("game-button-pedestrian");
+				}
 
+				// Vertical pedestrians
 
-                Button button = new Button();
+				if (x == 4 || x == 7) {
+					if (y != 2 && y != 3 && y != 8 && y != 9)
+						button.getStyleClass().add("game-button-pedestrian");
+				}
 
-                button.setPrefHeight(50);
-                button.setPrefWidth(50);
-                button.setAlignment(Pos.CENTER);
+				// Vertical streets
+				if (x == 5 || x == 6)
+					button.getStyleClass().addAll("game-button-road");
 
+				// Horizontal streets
+				if (y == 2 || y == 3 || y == 8 || y == 9)
+					button.getStyleClass().addAll("game-button-road");
 
+				root.setRowIndex(button, y);
+				root.setColumnIndex(button, x);
+				root.getChildren().add(button);
+			}
+		}
 
+	}
 
-                if(x==5){
-                    if(y==5 && pedestrianSignalClose || y!=5) {
-                        button.getStyleClass().addAll("game-button-road");
-                    } else{
-                        button.getStyleClass().addAll("game-button-pedestrian");
-                    }
-                } else if(y==5){
-                    if(x==5 && !pedestrianSignalClose || x!=5) {
-                        button.getStyleClass().addAll("game-button-pedestrian");
-                    } else{
-                        button.getStyleClass().addAll("game-button-road");
-                    }
-                } else {
-                    button.setText("");
-                    button.getStyleClass().addAll("game-button");
-                }
+	public static void startEnvironment() {
+		launch();
+	}
 
+	public static void main(String[] args) {
+		startAgent();
+		startEnvironment();
+		// startAgent();
 
-                root.setRowIndex(button,y);
-                root.setColumnIndex(button,x);
-                root.getChildren().add(button);
-            }
-        }
+	}
 
-    }
-
-
-
-
-
-    public  static  void startEnvironment(){
-        launch();
-    }
-
-    public static void main(String[] args) { startAgent();
-       startEnvironment();
-       startAgent();
-
-    }
-
-
-
+	// Novo método
+	public int getButton(int x, int y) {
+		return x * SIZE + y;
+	}
 
 }
