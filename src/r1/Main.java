@@ -2,6 +2,7 @@ package r1;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -66,27 +67,32 @@ public class Main extends Application {
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
-		//Runnable runnableTask = leftCars();
-		//executorService.schedule(runnableTask, 450, TimeUnit.MILLISECONDS);
+		Runnable runnableLeftTask = leftCars();
+		executorService.schedule(runnableLeftTask, 150, TimeUnit.MILLISECONDS);
 	}
 
 	private Runnable leftCars() {
 		return () -> {
+
 			try {
 				for (int i = 11; i > -1; i--) {
-
-					if (i < 11) {
-						TimeUnit.MILLISECONDS.sleep(300);
+					if (i == 0) {
+						root.getChildren().get(getButton(i + 1, 5)).getStyleClass().clear();
+						root.getChildren().get(getButton(i + 1, 5)).getStyleClass().addAll("game-button-road");
+						root.getChildren().get(getButton(i, 5)).getStyleClass().add("game-button-car");
+						root.getChildren().get(getButton(i, 5)).getStyleClass().addAll("game-button-road");
+					}else if (i < 11) {
+						TimeUnit.MILLISECONDS.sleep(100);
 						root.getChildren().get(getButton(i + 1, 5)).getStyleClass().clear();
 						root.getChildren().get(getButton(i + 1, 5)).getStyleClass().addAll("game-button-road");
 						root.getChildren().get(getButton(i, 5)).getStyleClass().add("game-button-car");
 
-					} else {
+					}   else {
 						root.getChildren().get(getButton(i, 5)).getStyleClass().add("game-button-car");
 					}
 				}
 
-			executorService.schedule(this::leftCars, (long) (Math.random() * 1000), TimeUnit.MILLISECONDS);
+				executorService.schedule(this::leftCars, Long.valueOf(randInt(30000, 60000)), TimeUnit.MILLISECONDS);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -176,9 +182,13 @@ public class Main extends Application {
 
 	}
 
-	// Novo método
-	public int getButton(int x, int y) {
+	private int getButton(int x, int y) {
 		return x * SIZE + y;
+	}
+
+	private static int randInt(int min, int max) {
+		int randomNum = new Random().nextInt((max - min) + 1) + min;
+		return randomNum;
 	}
 
 }
