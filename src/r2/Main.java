@@ -1,4 +1,4 @@
-package r1;
+package r2;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,20 +58,21 @@ public class Main extends Application {
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
-		// executorService.scheduleWithFixedDelay(leftCars(), 0, 300,
-		// TimeUnit.MILLISECONDS);
+		executorService.scheduleWithFixedDelay(leftCars(), 0, 300, TimeUnit.MILLISECONDS);
 		executorService.scheduleWithFixedDelay(rightCars(), 0, 350, TimeUnit.MILLISECONDS);
 	}
 
-	public void changeLane() {
+	protected static void changeLane() {
 		if (left) {
 			root.getChildren().get(getButton(6, 5)).getStyleClass().clear();
 			root.getChildren().get(getButton(6, 5)).getStyleClass().addAll("game-button-road");
 			root.getChildren().get(getButton(6, 6)).getStyleClass().add("game-button-agent");
+			left = !left;
 		} else {
 			root.getChildren().get(getButton(6, 6)).getStyleClass().clear();
 			root.getChildren().get(getButton(6, 6)).getStyleClass().addAll("game-button-road");
 			root.getChildren().get(getButton(6, 5)).getStyleClass().add("game-button-agent");
+			left = !left;
 		}
 	}
 
@@ -90,6 +91,11 @@ public class Main extends Application {
 					} else {
 						root.getChildren().get(getButton(i, 5)).getStyleClass().add("game-button-car");
 					}
+
+					if (i == 8 && left) {
+						LookEnv.envObservable.onNext("approaching(car).");
+					}
+
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -110,6 +116,11 @@ public class Main extends Application {
 							root.getChildren().get(getButton(i - 1, 6)).getStyleClass().clear();
 							root.getChildren().get(getButton(i - 1, 6)).getStyleClass().addAll("game-button-road");
 						}
+
+						if (i == 4 && !left) {
+							LookEnv.envObservable.onNext("approaching(car).");
+						}
+
 						root.getChildren().get(getButton(i, 6)).getStyleClass().add("game-button-car");
 					}
 				}
@@ -122,7 +133,7 @@ public class Main extends Application {
 	private static void startAgent() {
 		try {
 
-			File agentFile = new File("r1.on");
+			File agentFile = new File("r2.on");
 			CharStream stream = CharStreams.fromFileName(agentFile.getAbsolutePath());
 			AgentLexer lexer = new AgentLexer(stream);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -198,11 +209,10 @@ public class Main extends Application {
 	public static void main(String[] args) {
 		startAgent();
 		startEnvironment();
-		// startAgent();
 
 	}
 
-	private int getButton(int x, int y) {
+	private static int getButton(int x, int y) {
 		return x * SIZE + y;
 	}
 
