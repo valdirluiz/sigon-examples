@@ -8,6 +8,7 @@
         approaching(car).
     desires:
         be(safe).
+        solve(game).
     intentions:
         solve(game).
 

@@ -81,7 +81,7 @@ public class Main extends Application {
 			try {
 				for (int i = 11; i > -2; i--) {
 					if (i == -1) {
-						//root.getChildren().get(getButton(0, 5)).getStyleClass().clear();
+						// root.getChildren().get(getButton(0, 5)).getStyleClass().clear();
 						root.getChildren().get(getButton(0, 5)).getStyleClass().addAll("game-button-car");
 						TimeUnit.MILLISECONDS.sleep(100);
 						root.getChildren().get(getButton(0, 5)).getStyleClass().clear();
@@ -97,6 +97,8 @@ public class Main extends Application {
 
 					if (i == 8 && left) {
 						LookEnv.envObservable.onNext("approaching(car).");
+					} else if (i > 8 && left) {
+						LookEnv.envObservable.onNext("-approaching(car).");
 					}
 
 				}
@@ -124,6 +126,8 @@ public class Main extends Application {
 
 					if (i == 4 && !left) {
 						LookEnv.envObservable.onNext("approaching(car).");
+					} else if (!left && i < 4) {
+						LookEnv.envObservable.onNext("-approaching(car).");
 					}
 
 				}
@@ -208,26 +212,24 @@ public class Main extends Application {
 	public static void startEnvironment() {
 		launch();
 	}
-	
-	 
+
 	public static void main(String[] args) {
 		Thread thread = new Thread() {
-		    public void run() {
-		    	startAgent();
-		    }
+			public void run() {
+				startAgent();
+			}
 		};
 
 		thread.start();
-		
+
 		Thread thread2 = new Thread() {
-		    public void run() {
-		    	startEnvironment();
-		    }
+			public void run() {
+				startEnvironment();
+			}
 		};
-		
+
 		thread2.start();
-		
-		
+
 	}
 
 	private static int getButton(int x, int y) {
