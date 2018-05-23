@@ -81,8 +81,11 @@ public class Main extends Application {
 			try {
 				for (int i = 11; i > -2; i--) {
 					if (i == -1) {
-						root.getChildren().get(getButton(i + 1, 5)).getStyleClass().clear();
-						root.getChildren().get(getButton(i + 1, 5)).getStyleClass().addAll("game-button-road");
+						//root.getChildren().get(getButton(0, 5)).getStyleClass().clear();
+						root.getChildren().get(getButton(0, 5)).getStyleClass().addAll("game-button-car");
+						TimeUnit.MILLISECONDS.sleep(100);
+						root.getChildren().get(getButton(0, 5)).getStyleClass().clear();
+						root.getChildren().get(getButton(0, 5)).getStyleClass().addAll("game-button-road");
 					} else if (i < 11) {
 						TimeUnit.MILLISECONDS.sleep(100);
 						root.getChildren().get(getButton(i + 1, 5)).getStyleClass().clear();
@@ -106,23 +109,23 @@ public class Main extends Application {
 	private Runnable rightCars() {
 		return () -> {
 			try {
-				for (int i = 0; i < 12; i++) {
-					if (i < 12) {
-						TimeUnit.MILLISECONDS.sleep(100);
-						if (i == 0) {
-							root.getChildren().get(getButton(0, 6)).getStyleClass().clear();
-							root.getChildren().get(getButton(0, 6)).getStyleClass().addAll("game-button-road");
-						} else {
-							root.getChildren().get(getButton(i - 1, 6)).getStyleClass().clear();
-							root.getChildren().get(getButton(i - 1, 6)).getStyleClass().addAll("game-button-road");
-						}
-
-						if (i == 4 && !left) {
-							LookEnv.envObservable.onNext("approaching(car).");
-						}
-
+				for (int i = 0; i <= 12; i++) {
+					TimeUnit.MILLISECONDS.sleep(100);
+					if (i == 0) {
+						root.getChildren().get(getButton(0, 6)).getStyleClass().add("game-button-car");
+					} else if (i == 12) {
+						root.getChildren().get(getButton(11, 6)).getStyleClass().clear();
+						root.getChildren().get(getButton(11, 6)).getStyleClass().addAll("game-button-road");
+					} else {
+						root.getChildren().get(getButton(i - 1, 6)).getStyleClass().clear();
+						root.getChildren().get(getButton(i - 1, 6)).getStyleClass().addAll("game-button-road");
 						root.getChildren().get(getButton(i, 6)).getStyleClass().add("game-button-car");
 					}
+
+					if (i == 4 && !left) {
+						LookEnv.envObservable.onNext("approaching(car).");
+					}
+
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -205,11 +208,26 @@ public class Main extends Application {
 	public static void startEnvironment() {
 		launch();
 	}
-
+	
+	 
 	public static void main(String[] args) {
-		startAgent();
-		startEnvironment();
+		Thread thread = new Thread() {
+		    public void run() {
+		    	startAgent();
+		    }
+		};
 
+		thread.start();
+		
+		Thread thread2 = new Thread() {
+		    public void run() {
+		    	startEnvironment();
+		    }
+		};
+		
+		thread2.start();
+		
+		
 	}
 
 	private static int getButton(int x, int y) {
