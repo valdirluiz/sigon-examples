@@ -1,5 +1,6 @@
  communication:
-        sensor("lookEnv", "r2.LookEnv").
+        sensor("rightlookEnv", "r2.RightLookEnv").
+        sensor("leftLookEnv", "r2.LeftLookEnv").
         actuator("notify", "r2.NotifyPedestrian").
         actuator("change", "r2.Change").
         actuator("press", "r2.Press").

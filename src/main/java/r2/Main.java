@@ -28,6 +28,8 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
+	private static final String profiling_file = "/home/valdir/Documents/exp1.csv";
+
 	static GridPane root;
 
 	static int SIZE = 12;
@@ -83,11 +85,11 @@ public class Main extends Application {
 					if (i == -1) {
 						// root.getChildren().get(getButton(0, 5)).getStyleClass().clear();
 						root.getChildren().get(getButton(0, 5)).getStyleClass().addAll("game-button-car");
-						TimeUnit.MILLISECONDS.sleep(100);
+						TimeUnit.MILLISECONDS.sleep(200);
 						root.getChildren().get(getButton(0, 5)).getStyleClass().clear();
 						root.getChildren().get(getButton(0, 5)).getStyleClass().addAll("game-button-road");
 					} else if (i < 11) {
-						TimeUnit.MILLISECONDS.sleep(100);
+						TimeUnit.MILLISECONDS.sleep(200);
 						root.getChildren().get(getButton(i + 1, 5)).getStyleClass().clear();
 						root.getChildren().get(getButton(i + 1, 5)).getStyleClass().addAll("game-button-road");
 						root.getChildren().get(getButton(i, 5)).getStyleClass().add("game-button-car");
@@ -96,9 +98,11 @@ public class Main extends Application {
 					}
 
 					if (i == 8 && left) {
-						LookEnv.envObservable.onNext("approaching(car).");
+						TimeUnit.MILLISECONDS.sleep(200);
+						LeftLookEnv.envObservable.onNext("approaching(car).");
 					} else if (i > 8 && left) {
-						LookEnv.envObservable.onNext("-approaching(car).");
+						TimeUnit.MILLISECONDS.sleep(200);
+						LeftLookEnv.envObservable.onNext("-approaching(car).");
 					}
 
 				}
@@ -112,7 +116,7 @@ public class Main extends Application {
 		return () -> {
 			try {
 				for (int i = 0; i <= 12; i++) {
-					TimeUnit.MILLISECONDS.sleep(100);
+					TimeUnit.MILLISECONDS.sleep(200);
 					if (i == 0) {
 						root.getChildren().get(getButton(0, 6)).getStyleClass().add("game-button-car");
 					} else if (i == 12) {
@@ -125,9 +129,9 @@ public class Main extends Application {
 					}
 
 					if (i == 4 && !left) {
-						LookEnv.envObservable.onNext("approaching(car).");
+						RightLookEnv.envObservable.onNext("approaching(car).");
 					} else if (!left && i < 4) {
-						LookEnv.envObservable.onNext("-approaching(car).");
+						RightLookEnv.envObservable.onNext("-approaching(car).");
 					}
 
 				}
@@ -156,6 +160,7 @@ public class Main extends Application {
 			walker.walk(agentWalker, tree);
 
 			Agent agent = new Agent();
+			agent.setProfilingFile(profiling_file);
 			agent.run(agentWalker);
 
 		} catch (IOException e) {
@@ -219,16 +224,20 @@ public class Main extends Application {
 				startAgent();
 			}
 		};
-
-		thread.start();
-
+		
 		Thread thread2 = new Thread() {
 			public void run() {
 				startEnvironment();
 			}
 		};
-
+		
+		
+		thread.start();
 		thread2.start();
+
+		
+
+	
 
 	}
 
