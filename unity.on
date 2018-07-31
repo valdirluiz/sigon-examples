@@ -1,15 +1,18 @@
 communication:
-    sensor("sensor", "unity.SensorTest").
-    actuator("actuatorName", "unity.ActuatorTest").
+    sensor("test", "unity.SensorTest").
+    actuator("sayHello", "unity.ActuatorTest").
 
 planner:
 	plan(
 		start,
 		[
-			action(actuatorName(),  _, _)
+			action(sayHello(),  _, _)
 		]
 		).
 
 desires:
+	start.
+	
+intentions:
 	start.
 
