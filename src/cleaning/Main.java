@@ -2,10 +2,7 @@ package cleaning;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
 
-import br.ufsc.ine.agent.context.beliefs.BeliefsContextService;
-import br.ufsc.ine.agent.context.plans.PlansContextService;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -15,6 +12,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import agent.AgentLexer;
 import agent.AgentParser;
 import br.ufsc.ine.agent.Agent;
+import br.ufsc.ine.agent.context.beliefs.BeliefsContextService;
 import br.ufsc.ine.parser.AgentWalker;
 import br.ufsc.ine.parser.VerboseListener;
 import javafx.application.Application;
@@ -27,178 +25,192 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import sensor.PositionSensor;
 
+
 public class Main extends Application {
 
-	static GridPane root;
+    static GridPane root;
 
-	static int SIZE = 10;
-	static int length = SIZE;
-	static int width = SIZE;
-	static int garbage[][] = new int[SIZE][SIZE];
+    static int SIZE = 10;
+    static int length = SIZE;
+    static int width = SIZE;
+    static int garbage [][] = new int[SIZE][SIZE];
 
-	public static int rowIndex = 0;
-	public static int columnIndex = 0;
-	private static int full = 3;
+    public static  int rowIndex = 0;
+    public static  int columnIndex = 0;
+    private static  int full = 3;
 
-	@Override
-	public void start(Stage primaryStage) {
 
-		root = new GridPane();
-		root.setPadding(new Insets(10, 10, 10, 10));
-		root.setHgap(2);
-		root.setVgap(2);
-		root.getStyleClass().addAll("game-root");
+    @Override
+    public void start(Stage primaryStage) {
+        root = new GridPane();
+        root.setPadding(new Insets(10, 10, 10, 10));
+        root.setHgap(2);
+        root.setVgap(2);
+        root.getStyleClass().addAll("game-root");
 
-		// add the agent
-		addChildrens(null, null, root, "A");
+        //add the agent
+        addChildrens(null, null, root,"A");
 
-		// add garbage
-		addChildrens(3, 2, root, "G");
-		garbage[3][2] = 1;
+        //add garbage
+        addChildrens(3, 2, root,"G");
+        garbage[3][2] = 1;
 
-		// add garbage
-		addChildrens(4, 5, root, "G");
-		garbage[4][5] = 1;
+        //add garbage
+        addChildrens(4, 5, root,"G");
+        garbage[4][5] = 1;
 
-		// add garbage
-		addChildrens(6, 7, root, "G");
-		garbage[6][7] = 1;
+        //add garbage
+        addChildrens(6, 7, root,"G");
+        garbage[6][7] = 1;
 
-		Scene scene = new Scene(root, 550, 550);
-		scene.getStylesheets().add("sample/game.css");
 
-		primaryStage.setTitle("Exemplo 1");
-		primaryStage.setScene(scene);
-		primaryStage.show();
 
-		scene.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
-			System.out.println(PlansContextService.getInstance().getTheory());
-			PositionSensor.positionObservable.onNext("not clear.");
-			System.out.println(BeliefsContextService.getInstance().getTheory());
-		});
+        Scene scene = new Scene(root, 550, 550);
+        scene.getStylesheets().add("sample/game.css");
 
-	}
+        primaryStage.setTitle("Exemplo 1");
+        primaryStage.setScene(scene);
+        primaryStage.show();
 
-	private static void startAgent() {
-		try {
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
+            PositionSensor.positionObservable.onNext("not clear.");
+        });
 
-			File agentFile = new File("r1.on");
-			CharStream stream = CharStreams.fromFileName(agentFile.getAbsolutePath());
-			AgentLexer lexer = new AgentLexer(stream);
-			CommonTokenStream tokens = new CommonTokenStream(lexer);
+    }
 
-			AgentParser parser = new AgentParser(tokens);
-			parser.removeErrorListeners();
-			parser.addErrorListener(new VerboseListener());
+    private static void startAgent(){
+        try {
 
-			ParseTree tree = parser.agent();
-			ParseTreeWalker walker = new ParseTreeWalker();
+            File agentFile = new File("r1.on");
+            CharStream stream = CharStreams.fromFileName(agentFile.getAbsolutePath());
+            AgentLexer lexer = new AgentLexer(stream);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-			AgentWalker agentWalker = new AgentWalker();
-			walker.walk(agentWalker, tree);
+            AgentParser parser = new AgentParser(tokens);
+            parser.removeErrorListeners();
+            parser.addErrorListener(new VerboseListener());
 
-			Agent agent = new Agent();
-			agent.run(agentWalker);
+            ParseTree tree = parser.agent();
+            ParseTreeWalker walker = new ParseTreeWalker();
 
-		} catch (IOException e) {
-			System.out.println("I/O exception.");
-		}
-	}
+            AgentWalker agentWalker = new AgentWalker();
+            walker.walk(agentWalker, tree);
 
-	public static void nextSlot() {
-		if (columnIndex < SIZE - 1) {
-			addChildrens(rowIndex, columnIndex, root, "");
-			columnIndex++;
-			if (garbage[rowIndex][columnIndex] == 1) {
-				PositionSensor.positionObservable.onNext("garbage.");
-				System.out.println(BeliefsContextService.getInstance().getTheory());
-			} else {
-				addChildrens(rowIndex, columnIndex, root, "A");
-				String content = "position(" + (columnIndex + 1) + "," + (rowIndex) + ").";
-				PositionSensor.positionObservable.onNext(content);
-			}
+            Agent agent = new Agent();
+            agent.run(agentWalker);
 
-		} else {
-			addChildrens(rowIndex, columnIndex, root, "");
-			rowIndex++;
-			columnIndex = 0;
-			if (garbage[rowIndex][columnIndex] == 1) {
-				PositionSensor.positionObservable.onNext("garbage");
-			} else {
-				addChildrens(rowIndex, columnIndex, root, "A");
-				String content = "position(" + (columnIndex + 1) + "," + (rowIndex) + ").";
-				PositionSensor.positionObservable.onNext(content);
 
-			}
 
-		}
 
-	}
+        } catch (IOException e) {
+            System.out.println("I/O exception.");
+        }
+    }
 
-	private static void addChildrens(Integer row, Integer column, GridPane root, String text) {
 
-		for (int y = 0; y < length; y++) {
-			for (int x = 0; x < width; x++) {
-				Button button = new Button();
-				button.setPrefHeight(50);
-				button.setPrefWidth(50);
-				button.setAlignment(Pos.CENTER);
+    public static  void nextSlot(){
 
-				if (y == rowIndex && x == columnIndex) {
+        if(full==0) {
+            System.out.println("Apos limpar:");
+            PositionSensor.positionObservable.onNext("clear.");
+            System.out.println(BeliefsContextService.getInstance().getTheory());
+        }
+        if(columnIndex < SIZE -1) {
+            addChildrens(rowIndex, columnIndex, root,"");
+            columnIndex++;
+            if(garbage[rowIndex][columnIndex]==1){
+                PositionSensor.positionObservable.onNext("garbage.");
+                System.out.println(BeliefsContextService.getInstance().getTheory());
+            }
+             else {
+                addChildrens(rowIndex, columnIndex, root, "A");
+                String content = "position("+(columnIndex+1)+","+(rowIndex) +").";
+                PositionSensor.positionObservable.onNext(content);
+            }
 
-					if (text.equals("A") || text.equals("G")) {
-						button.getStyleClass().addAll("game-button");
-						button.setText("A");
-					} else {
-						button.getStyleClass().addAll("game-button-active");
-						button.setText("");
-					}
-					root.setRowIndex(button, y);
-					root.setColumnIndex(button, x);
-					root.getChildren().add(button);
-				} else if ((row != null && column != null) && (y == row && x == column)) {
-					button.setText(text);
-					button.getStyleClass().addAll("game-button");
-					root.setRowIndex(button, y);
-					root.setColumnIndex(button, x);
-					root.getChildren().add(button);
-				} else if (row == null && column == null) {
-					button.setText("");
-					button.getStyleClass().addAll("game-button-active");
-					root.setRowIndex(button, y);
-					root.setColumnIndex(button, x);
-					root.getChildren().add(button);
-				}
 
-			}
-		}
+        } else{
+            addChildrens(rowIndex, columnIndex, root,"");
+            rowIndex++;
+            columnIndex=0;
+            if(garbage[rowIndex][columnIndex]==1){
+                PositionSensor.positionObservable.onNext("garbage");
+            } else {
+                addChildrens(rowIndex, columnIndex, root, "A");
+                String content = "position("+(columnIndex+1)+","+(rowIndex) +").";
+                PositionSensor.positionObservable.onNext(content);
 
-	}
+            }
 
-	public static void startEnvironment() {
-		launch();
-	}
+        }
 
-	public static void main(String[] args) {
-		startAgent();
-		startEnvironment();
-	}
+
+    }
+
+    private static void addChildrens(Integer row, Integer column, GridPane root, String text) {
+
+
+        for(int y = 0; y < length; y++){
+            for(int x = 0; x < width; x++) {
+                Button button = new Button();
+                button.setPrefHeight(50);
+                button.setPrefWidth(50);
+                button.setAlignment(Pos.CENTER);
+
+                if (y == rowIndex && x == columnIndex) {
+
+                    if(text.equals("A") || text.equals("G")) {
+                        button.getStyleClass().addAll("game-button");
+                        button.setText("A");
+                    } else{
+                        button.getStyleClass().addAll("game-button-active");
+                        button.setText("");
+                    }
+                    root.setRowIndex(button,y);
+                    root.setColumnIndex(button,x);
+                    root.getChildren().add(button);
+                } else if ((row !=null && column!=null ) && (y == row && x == column)) {
+                    button.setText(text);
+                    button.getStyleClass().addAll("game-button");
+                    root.setRowIndex(button,y);
+                    root.setColumnIndex(button,x);
+                    root.getChildren().add(button);
+                }  else if(row == null && column == null) {
+                    button.setText("");
+                    button.getStyleClass().addAll("game-button-active");
+                    root.setRowIndex(button,y);
+                    root.setColumnIndex(button,x);
+                    root.getChildren().add(button);
+                }
+
+            }
+        }
+
+    }
+
+    public  static  void startEnvironment(){
+        launch();
+    }
+
+    public static void main(String[] args) { startAgent();
+       startEnvironment();
+       startAgent();
+
+    }
 
 	public static void burnGarbage() {
-		full--;
-		addChildrens(rowIndex, columnIndex, root, "A");
+        full--;
+        addChildrens(rowIndex,columnIndex,root,"A");
 
-		if (full == 0) {
-			PositionSensor.positionObservable.onNext("clear.");
-			System.out.println(BeliefsContextService.getInstance().getTheory());
-		} else {
-			PositionSensor.positionObservable.onNext("-garbage.");
-		}
+        if(full==0){
+          PositionSensor.positionObservable.onNext("-garbage.");
+
+        } else{
+            PositionSensor.positionObservable.onNext("-garbage.");
+
+        }
 
 	}
 
-	private static int radomBetween(int min, int max) {
-		Random random = new Random();
-		return random.nextInt(max + 1 - min) + min;
-	}
+
 }
