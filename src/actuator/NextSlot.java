@@ -10,8 +10,6 @@ public class NextSlot  extends Actuator {
 
     public void act(List<String> list) {
 
-
-
         Platform.runLater(new Runnable() {
             @Override
             public void run() {

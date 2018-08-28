@@ -1,16 +1,17 @@
 communication:
     sensor("positionSensor", "sensor.PositionSensor").
     actuator("next", "actuator.NextSlot").
-    actuator("burn", "actuator.BurnGarbage").
+    actuator("toDodge", "actuator.ToDodge").
 
 desires:
 	check(slots).
-
+	not obstacle.
+	
 intentions:
-	check(slots).
-
+	end.
+	
 planner:
-	plan(check(slots), [action(next(slot))], [not garbage, not clear], _).
-	plan(check(slots), [action(burn(garbage))], garbage, not garbage).
+	plan(check(slots), [action(next(slot))], [not obstacle, not end], _).
+	plan(check(slots), [action(toDodge(garbage))], [obstacle, not end], not obstacle).
 
 

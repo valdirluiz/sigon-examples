@@ -52,28 +52,40 @@ public class Main extends Application {
         addChildrens(null, null, root,"A");
 
         //add garbage
+        addChildrens(2, 2, root,"G");
+        garbage[2][2] = 1;
+
+        //add garbage
         addChildrens(3, 2, root,"G");
         garbage[3][2] = 1;
 
         //add garbage
         addChildrens(4, 5, root,"G");
         garbage[4][5] = 1;
-
-        //add garbage
-        addChildrens(6, 7, root,"G");
-        garbage[6][7] = 1;
+        
+      //add garbage
+        addChildrens(5, 5, root,"G");
+        garbage[5][5] = 1;
+        
+      //add garbage
+        addChildrens(6, 5, root,"G");
+        garbage[6][5] = 1;
+        
+      //add garbage
+       // addChildrens(9, 9, root,"G");
+        //garbage[9][9] = 1;
 
 
 
         Scene scene = new Scene(root, 550, 550);
-        scene.getStylesheets().add("sample/game.css");
+        scene.getStylesheets().add("cleaning/game.css");
 
         primaryStage.setTitle("Exemplo 1");
         primaryStage.setScene(scene);
         primaryStage.show();
 
         scene.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
-            PositionSensor.positionObservable.onNext("not clear.");
+            PositionSensor.positionObservable.onNext("not end.");
         });
 
     }
@@ -110,16 +122,16 @@ public class Main extends Application {
 
     public static  void nextSlot(){
 
-        if(full==0) {
-            System.out.println("Apos limpar:");
-            PositionSensor.positionObservable.onNext("clear.");
+        if(columnIndex==9 && rowIndex == 9) {
+            System.out.println("Chegou ao final:");
+            PositionSensor.positionObservable.onNext("end.");
             System.out.println(BeliefsContextService.getInstance().getTheory());
         }
         if(columnIndex < SIZE -1) {
             addChildrens(rowIndex, columnIndex, root,"");
             columnIndex++;
             if(garbage[rowIndex][columnIndex]==1){
-                PositionSensor.positionObservable.onNext("garbage.");
+                PositionSensor.positionObservable.onNext("obstacle.");
                 System.out.println(BeliefsContextService.getInstance().getTheory());
             }
              else {
@@ -134,7 +146,7 @@ public class Main extends Application {
             rowIndex++;
             columnIndex=0;
             if(garbage[rowIndex][columnIndex]==1){
-                PositionSensor.positionObservable.onNext("garbage");
+                PositionSensor.positionObservable.onNext("obstacle");
             } else {
                 addChildrens(rowIndex, columnIndex, root, "A");
                 String content = "position("+(columnIndex+1)+","+(rowIndex) +").";
@@ -203,10 +215,10 @@ public class Main extends Application {
         addChildrens(rowIndex,columnIndex,root,"A");
 
         if(full==0){
-          PositionSensor.positionObservable.onNext("-garbage.");
+          PositionSensor.positionObservable.onNext("-obstacle.");
 
         } else{
-            PositionSensor.positionObservable.onNext("-garbage.");
+            PositionSensor.positionObservable.onNext("-obstacle.");
 
         }
 

@@ -10,7 +10,7 @@ import cleaning.Main;
 
 import java.util.List;
 
-public class BurnGarbage  extends Actuator {
+public class ToDodge  extends Actuator {
 
     public void act(List<String> list) {
 
