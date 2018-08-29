@@ -26,6 +26,7 @@ import javafx.stage.Stage;
 import sensor.PositionSensor;
 
 
+@SuppressWarnings("restriction")
 public class Main extends Application {
 
     static GridPane root;
@@ -37,7 +38,7 @@ public class Main extends Application {
 
     public static  int rowIndex = 0;
     public static  int columnIndex = 0;
-    private static  int full = 3;
+    private static  int full = 5;
 
 
     @Override
@@ -121,11 +122,12 @@ public class Main extends Application {
 
 
     public static  void nextSlot(){
-
-        if(columnIndex==9 && rowIndex == 9) {
+    	 
+        if(rowIndex == 9 && columnIndex==8) {
             System.out.println("Chegou ao final:");
             PositionSensor.positionObservable.onNext("end.");
             System.out.println(BeliefsContextService.getInstance().getTheory());
+            
         }
         if(columnIndex < SIZE -1) {
             addChildrens(rowIndex, columnIndex, root,"");
