@@ -1,4 +1,4 @@
-package cleaning;
+package exemplo;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,11 +71,6 @@ public class Main extends Application {
       //add garbage
         addChildrens(6, 5, root,"G");
         garbage[6][5] = 1;
-        
-      //add garbage
-       // addChildrens(9, 9, root,"G");
-        //garbage[9][9] = 1;
-
 
 
         Scene scene = new Scene(root, 550, 550);
@@ -212,13 +207,15 @@ public class Main extends Application {
 
     }
 
-	public static void burnGarbage() {
+	public static void toDodge() {
         full--;
+        rowIndex++;
         addChildrens(rowIndex,columnIndex,root,"A");
-
-        if(full==0){
+        
+        if(garbage[rowIndex][columnIndex]==1){
+            PositionSensor.positionObservable.onNext("obstacle");
+        } else if(full==0){
           PositionSensor.positionObservable.onNext("-obstacle.");
-
         } else{
             PositionSensor.positionObservable.onNext("-obstacle.");
 
