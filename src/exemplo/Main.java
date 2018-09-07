@@ -105,6 +105,7 @@ public class Main extends Application {
             walker.walk(agentWalker, tree);
 
             Agent agent = new Agent();
+            agent.setProfilingFile("/home/valdirluiz/resultados.csv");
             agent.run(agentWalker);
 
 
